@@ -1026,7 +1026,7 @@ public class NetServer implements ApplicationListener{
                     packet.amount = sent;
                     packet.data = syncStream.toByteArray();
                     for (var player : Groups.player) {
-                        if (Header.lib.hasMindurkaCompat(player)) continue;
+                        if (Header.lib.hasMindurkaCompat(player) || !player.con.hasConnected) continue;
                         player.con.send(packet, false);
                     }
                     sent = 0;
@@ -1041,7 +1041,7 @@ public class NetServer implements ApplicationListener{
             packet.amount = sent;
             packet.data = syncStream.toByteArray();
             for (var player : Groups.player) {
-                if (Header.lib.hasMindurkaCompat(player)) continue;
+                if (Header.lib.hasMindurkaCompat(player) || !player.con.hasConnected) continue;
                 player.con.send(packet, false);
             }
         }
@@ -1070,7 +1070,7 @@ public class NetServer implements ApplicationListener{
                         packet.amount = sent;
                         packet.data = syncStream.toByteArray();
                         for (var player : Groups.player) {
-                            if (!Header.lib.hasMindurkaCompat(player)) continue;
+                            if (!Header.lib.hasMindurkaCompat(player) || !player.con.hasConnected) continue;
                             player.con.send(packet, false);
                         }
                         sent = 0;
@@ -1085,7 +1085,7 @@ public class NetServer implements ApplicationListener{
                 packet.amount = sent;
                 packet.data = syncStream.toByteArray();
                 for (var player : Groups.player) {
-                    if (!Header.lib.hasMindurkaCompat(player)) continue;
+                    if (!Header.lib.hasMindurkaCompat(player) || !player.con.hasConnected) continue;
                     player.con.send(packet, false);
                 }
             }

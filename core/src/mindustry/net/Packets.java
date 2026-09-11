@@ -48,6 +48,7 @@ public class Packets{
     /** Generic client connection event. */
     public static class Connect extends Packet{
         public String addressTCP;
+        public String addressUDP;
 
         @Override
         public int getPriority(){

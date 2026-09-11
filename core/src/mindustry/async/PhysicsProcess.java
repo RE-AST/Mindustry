@@ -84,12 +84,9 @@ public class PhysicsProcess implements AsyncProcess{
     public void end(){
         if(physics == null) return;
 
-        //move entities
         for(PhysicRef ref : refs){
-            Physicsc entity = ref.entity;
-
-            //move by delta
-            entity.move(ref.body.x - ref.x, ref.body.y - ref.y);
+            float dx = ref.body.x - ref.x, dy = ref.body.y - ref.y;
+            ref.entity.move(dx, dy);
         }
     }
 
@@ -121,8 +118,7 @@ public class PhysicsProcess implements AsyncProcess{
 
     //world for simulating physics in a different thread
     public static class PhysicsWorld{
-        //how much to soften movement by
-        private static final float scl = 1.25f;
+        private static final float scl = 1f;
 
         private final QuadTree<PhysicsBody>[] trees = new QuadTree[layers];
         private final Seq<PhysicsBody> bodies = new Seq<>(false, 16, PhysicsBody.class);
@@ -162,8 +158,7 @@ public class PhysicsProcess implements AsyncProcess{
 
             for(int i = 0; i < bodySize; i++){
                 PhysicsBody body = bodyItems[i];
-                //for clients, the only body that collides is the local one; all other physics simulations are handled by the server.
-                if(!body.local || body.layer < 0) continue;
+                if(body.layer < 0) continue;
 
                 body.hitbox(rect);
 
@@ -183,7 +178,7 @@ public class PhysicsProcess implements AsyncProcess{
                     if(dst < rs){
                         vec.set(body.x - other.x, body.y - other.y);
 
-                        if(vec.isZero()){ //exact stacked bodies will move in random directions away from each other
+                        if(vec.isZero()){
                             vec.trns(rand.random(360f), rs - dst);
                         }else{
                             vec.setLength(rs - dst);
@@ -192,14 +187,11 @@ public class PhysicsProcess implements AsyncProcess{
                         float ms = body.mass + other.mass;
                         float m1 = other.mass / ms, m2 = body.mass / ms;
 
-                        //first body is always local due to guard check above
                         body.x += vec.x * m1 / scl;
                         body.y += vec.y * m1 / scl;
 
-                        if(other.local){
-                            other.x -= vec.x * m2 / scl;
-                            other.y -= vec.y * m2 / scl;
-                        }
+                        other.x -= vec.x * m2 / scl;
+                        other.y -= vec.y * m2 / scl;
                     }
                 }
                 body.collided = true;

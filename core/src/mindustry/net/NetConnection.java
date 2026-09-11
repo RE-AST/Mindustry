@@ -36,7 +36,7 @@ public abstract class NetConnection{
     public boolean hasConnected, hasBegunConnecting, hasDisconnected;
     public float viewWidth, viewHeight, viewX, viewY;
 
-    public NetConnection(String address){
+    public NetConnection(String address, String addressUDP){
         this.address = address;
     }
 

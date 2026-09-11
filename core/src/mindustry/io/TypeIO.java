@@ -525,9 +525,9 @@ public class TypeIO{
     public static Queue<BuildPlan> readPlansQueueNet(Reads read){
         int used = read.i();
         if(used == -1) return null;
-        if(used > maxSyncedPlans) throw new RuntimeException("Queue too long: " + used);
+        int capped = Math.min(Math.max(used, 0), maxSyncedPlans);
         var out = new Queue<BuildPlan>();
-        for(int i = 0; i < used; i++){
+        for(int i = 0; i < capped; i++){
             out.add(readPlan(read));
         }
         return out;
@@ -956,6 +956,8 @@ public class TypeIO{
         float time = read.f();
 
         StatusEntry result = new StatusEntry().set(content.getByID(ContentType.status, id), time);
+
+        if(result.effect == null) return result;
 
         if(result.effect.dynamic){
             //read flags that store which fields are set

@@ -75,6 +75,7 @@ public class ArcNetProvider implements NetProvider{
             public void connected(Connection connection){
                 Connect c = new Connect();
                 c.addressTCP = connection.getRemoteAddressTCP().getAddress().getHostAddress();
+                c.addressUDP = connection.getRemoteAddressUDP().getAddress().getHostAddress();
                 if(connection.getRemoteAddressTCP() != null) c.addressTCP = connection.getRemoteAddressTCP().toString();
 
                 Core.app.post(() -> net.handleClientReceived(c));
@@ -120,20 +121,22 @@ public class ArcNetProvider implements NetProvider{
 
             @Override
             public void connected(Connection connection){
-                String ip = connection.getRemoteAddressTCP().getAddress().getHostAddress();
+                String tcpIP = connection.getRemoteAddressTCP().getAddress().getHostAddress();
+                String udpIP = connection.getRemoteAddressUDP().getAddress().getHostAddress();
 
                 //kill connections above the limit to prevent spam
-                if((playerLimitCache > 0 && server.getConnections().length > playerLimitCache) || netServer.admins.isDosBlacklisted(ip)){
-                    Log.info("Closing connection @ - IP marked as a potential DOS attack.", ip);
+                if((playerLimitCache > 0 && server.getConnections().length > playerLimitCache) || (netServer.admins.isDosBlacklisted(tcpIP) || netServer.admins.isDosBlacklisted(udpIP))){
+                    Log.info("Closing connection @ (udp: @) - IP marked as a potential DOS attack.", tcpIP,udpIP);
 
                     connection.close(DcReason.closed);
                     return;
                 }
 
-                ArcConnection kn = new ArcConnection(ip, connection);
+                ArcConnection kn = new ArcConnection(tcpIP,udpIP, connection);
 
                 Connect c = new Connect();
-                c.addressTCP = ip;
+                c.addressTCP = tcpIP;
+                c.addressUDP = udpIP;
 
                 Log.debug("&bReceived connection: @", c.addressTCP);
 
@@ -356,8 +359,8 @@ public class ArcNetProvider implements NetProvider{
 
         long lastErrorTime;
 
-        public ArcConnection(String address, Connection connection){
-            super(address);
+        public ArcConnection(String addressTCP,String addressUDP, Connection connection){
+            super(addressTCP,addressUDP);
             this.connection = connection;
         }
 
