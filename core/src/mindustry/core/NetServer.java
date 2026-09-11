@@ -1410,7 +1410,14 @@ public class NetServer implements ApplicationListener{
                 //write custom player-specific entities (usually labels)
                 for(Player player : Groups.player){
                     if(player.con != null && player.con.hasConnected && player.con.localEntities.size > 0){
-                        writeCustomEntitySnapshot(player, player.con.localEntities);
+                        //Mindurka extension! This is the only entity snapshot still serialized per
+                        //player, so it is the only one that can carry player-specific data.
+                        try{
+                            mdSyncTarget = player;
+                            writeCustomEntitySnapshot(player, player.con.localEntities);
+                        }finally{
+                            mdSyncTarget = null;
+                        }
                     }
                 }
             }

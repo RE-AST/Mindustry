@@ -191,8 +191,9 @@ public class PhysicsProcess implements AsyncProcess{
 
                 for(int i = 0; i < bodySize; i++){
                     PhysicsBody body = bodyItems[i];
-                    //for clients, the only body that collides is the local one; all other physics simulations are handled by the server.
-                    if(!body.local) continue;
+                    //Mindurka extension! Upstream skips non-local bodies here. Dropped on purpose:
+                    //this fork ships a server, where begin() marks every body local, so the check
+                    //never fires and both sides of a pair must be moved. Do not restore on merge.
 
                     seq.size = 0;
                     tree.intersect(body.x - body.radius, body.y - body.radius, body.radius * 2, body.radius * 2, seq);
@@ -222,15 +223,12 @@ public class PhysicsProcess implements AsyncProcess{
                             float ms = body.mass + other.mass;
                             float m1 = other.mass / ms, m2 = body.mass / ms;
 
-                            //first body is always local due to guard check above
                             body.x += vec.x * m1 / scl;
                             body.y += vec.y * m1 / scl;
 
-                            if(other.local){
-                                other.x -= vec.x * m2 / scl;
-                                other.y -= vec.y * m2 / scl;
-
-                            }
+                            //Mindurka extension! Upstream guards this with other.local; see above.
+                            other.x -= vec.x * m2 / scl;
+                            other.y -= vec.y * m2 / scl;
                         }
                     }
 
