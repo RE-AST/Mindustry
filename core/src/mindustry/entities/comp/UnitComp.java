@@ -8,6 +8,7 @@ import arc.math.geom.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import mindustry.*;
+import mindustry.Vars;
 import mindustry.ai.types.*;
 import mindustry.annotations.Annotations.*;
 import mindustry.async.*;
@@ -51,6 +52,7 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     private UnitController controller;
     Ability[] abilities = {};
     UnitType type = UnitTypes.alpha;
+    @Mask("false")
     boolean spawnedByCore;
     double flag;
 
@@ -72,6 +74,23 @@ abstract class UnitComp implements Healthc, Physicsc, Hitboxc, Statusc, Teamc, I
     transient float drownTime;
     transient float splashTimer;
     transient @Nullable Floor lastDrownFloor;
+
+    public float mdScaledHealth() {
+        return health / maxHealth * ((Unit) self()).type.health;
+    }
+
+    public boolean mdReplaceNaN() { return !isShooting(); }
+
+    public float mdRange() {
+        float range = 0;
+        int max = type.weapons.size;
+        for (int i = 0; i < max; i++) {
+            var weapon = type.weapons.get(i);
+            float v = weapon.range();
+            if (v > range) range = v;
+        }
+        return range;
+    }
 
     public boolean checkTarget(boolean targetAir, boolean targetGround){
         return (isGrounded() && targetGround) || (isFlying() && targetAir);
