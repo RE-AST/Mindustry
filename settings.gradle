@@ -20,6 +20,10 @@ if (System.env["MINDURKA_WORKSPACE"] == null) {
 }
 gradle.ext.workspacePath = workspacePath
 
+if(hasProperty("localSteamworks") || localProperties.getOrDefault("localSteamworks", "false") == "true"){
+    includeBuild("../steamworks4j")
+}
+
 if(!hasProperty("noLocalArc")){
     if(new File(rootDir.parent, 'arc').exists()){
         println("Compiling with localArc")
