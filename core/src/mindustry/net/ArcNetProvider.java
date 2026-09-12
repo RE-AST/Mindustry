@@ -78,7 +78,6 @@ public class ArcNetProvider implements NetProvider{
             public void connected(Connection connection){
                 Connect c = new Connect();
                 c.addressTCP = connection.getRemoteAddressTCP().getAddress().getHostAddress();
-                c.addressUDP = connection.getRemoteAddressUDP().getAddress().getHostAddress();
                 if(connection.getRemoteAddressTCP() != null) c.addressTCP = connection.getRemoteAddressTCP().toString();
 
                 Core.app.post(() -> net.handleClientReceived(c));
@@ -126,6 +125,7 @@ public class ArcNetProvider implements NetProvider{
             @Override
             public void connected(Connection connection){
                 String tcpIP = connection.getRemoteAddressTCP().getAddress().getHostAddress();
+                //Mindurka extension! ArcConnection.blacklist() blacklists the UDP address too, so check it here as well.
                 String udpIP = connection.getRemoteAddressUDP().getAddress().getHostAddress();
 
                 //kill connections above the limit to prevent spam
@@ -136,11 +136,10 @@ public class ArcNetProvider implements NetProvider{
                     return;
                 }
 
-                ArcConnection kn = new ArcConnection(tcpIP,udpIP, connection);
+                ArcConnection kn = new ArcConnection(tcpIP, connection);
 
                 Connect c = new Connect();
                 c.addressTCP = tcpIP;
-                c.addressUDP = udpIP;
 
                 Log.debug("&bReceived connection: @", c.addressTCP);
 
@@ -406,8 +405,8 @@ public class ArcNetProvider implements NetProvider{
 
         long lastErrorTime;
 
-        public ArcConnection(String addressTCP,String addressUDP, Connection connection){
-            super(addressTCP,addressUDP);
+        public ArcConnection(String address, Connection connection){
+            super(address);
             this.connection = connection;
         }
 
