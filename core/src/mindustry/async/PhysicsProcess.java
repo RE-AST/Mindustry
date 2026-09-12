@@ -191,9 +191,7 @@ public class PhysicsProcess implements AsyncProcess{
 
                 for(int i = 0; i < bodySize; i++){
                     PhysicsBody body = bodyItems[i];
-                    //Mindurka extension! Upstream skips non-local bodies here. Dropped on purpose:
-                    //this fork ships a server, where begin() marks every body local, so the check
-                    //never fires and both sides of a pair must be moved. Do not restore on merge.
+                    //Mindurka: upstream's 'if(!body.local) continue' is dropped on purpose. Keep it out on merge.
 
                     seq.size = 0;
                     tree.intersect(body.x - body.radius, body.y - body.radius, body.radius * 2, body.radius * 2, seq);
